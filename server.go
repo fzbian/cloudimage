@@ -2,36 +2,78 @@ package main
 
 import (
 	"fmt"
-	"github.com/gofiber/fiber/v2"
-	"strconv"
+	"github.com/labstack/echo/v4"
+	"io"
+	"math/rand"
+	"mime/multipart"
+	"net/http"
+	"os"
+	"path/filepath"
+	"time"
 )
 
 func main() {
-	port := 3000
+	app := echo.New()
 
-	app := fiber.New(fiber.Config{DisableStartupMessage: true})
-	api := app.Group("/api")
+	app.Static("/i/", "images")
+	app.Static("/", "index.html")
+	app.GET("/health", Health)
+	app.POST("/upload", Upload)
 
-	app.Get("/", func(ctx *fiber.Ctx) error {
-		err := ctx.SendString("Hello world")
-		if err != nil {
-			return err
-		}
-		return nil
-	})
-
-	api.Get("/health", func(ctx *fiber.Ctx) error {
-		err := ctx.SendString("Ok!")
-		if err != nil {
-			return err
-		}
-		return nil
-	})
-
-	fmt.Printf("Server on port %d", port)
-	fiberPort := strconv.Itoa(port)
-	err := app.Listen(":" + fiberPort)
+	err := app.Start(":8080")
 	if err != nil {
 		fmt.Println(err.Error())
 	}
+}
+
+func Health(c echo.Context) error {
+	err := c.String(http.StatusOK, "Ok!")
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	return nil
+}
+
+func Upload(c echo.Context) error {
+	file, err := c.FormFile("file")
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	open, err := file.Open()
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	defer func(open multipart.File) {
+		err := open.Close()
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+	}(open)
+
+	name := RandomName() + filepath.Ext(file.Filename)
+
+	dst, err := os.Create("images/" + name)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	if _, err = io.Copy(dst, open); err != nil {
+		fmt.Println(err.Error())
+	}
+
+	return c.String(http.StatusOK, "File upload, "+name)
+}
+
+func RandomName() string {
+	charset := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWYZ"
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	result := make([]byte, 12)
+
+	for i := range result {
+		result[i] = charset[r.Intn(len(charset))]
+	}
+
+	return string(result)
 }

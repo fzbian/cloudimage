@@ -25,9 +25,13 @@ func Upload(c echo.Context) error {
 		fmt.Println("Error loading .env file")
 	}
 
+	error := map[string]string{
+		"error": "Se requiere una imagen para cargar.",
+	}
+
 	file, err := c.FormFile("file")
 	if err != nil {
-		fmt.Println(err.Error())
+		return c.JSON(http.StatusBadRequest, error)
 	}
 
 	NewFileName := utils.RandomName()

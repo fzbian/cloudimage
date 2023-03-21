@@ -80,5 +80,5 @@ func Upload(c echo.Context) error {
 		"link": os.Getenv("DOMAIN") + "i/" + ImageFileName,
 	}
 
-	return c.JSON(http.StatusOK, data)
+	return c.JSON(http.StatusCreated, data)
 }

@@ -3,6 +3,7 @@ package controllers
 import (
 	"cloudimage/utils"
 	"fmt"
+	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"gopkg.in/yaml.v2"
 	"io"
@@ -19,6 +20,11 @@ type Data struct {
 }
 
 func Upload(c echo.Context) error {
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Println("Error loading .env file")
+	}
+
 	file, err := c.FormFile("file")
 	if err != nil {
 		fmt.Println(err.Error())
@@ -70,5 +76,9 @@ func Upload(c echo.Context) error {
 		fmt.Println(err.Error())
 	}
 
-	return c.String(http.StatusOK, ImageFileName)
+	data := map[string]string{
+		"link": os.Getenv("DOMAIN") + "i/" + ImageFileName,
+	}
+
+	return c.JSON(http.StatusOK, data)
 }

@@ -16,9 +16,11 @@ func main() {
 
 	app := echo.New()
 
+	api := app.Group("/api/")
+
 	app.Static("/i/", "images")
-	app.GET("/health", controllers.Health)
-	app.POST("/upload", controllers.Upload)
+	api.GET("/health", controllers.Health)
+	api.POST("/upload", controllers.Upload)
 
 	err = app.Start(":" + os.Getenv("PORT"))
 	if err != nil {

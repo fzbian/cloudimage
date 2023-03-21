@@ -168,3 +168,8 @@ fabric.properties
 
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij+all,goland+all,go
+
+*.yaml
+*.png
+*.pdf
+*.jpg

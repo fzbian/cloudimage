@@ -10,7 +10,6 @@ func main() {
 	app := echo.New()
 
 	app.Static("/i/", "images")
-	app.Static("/", "index.html")
 	app.GET("/health", controllers.Health)
 	app.POST("/upload", controllers.Upload)
 

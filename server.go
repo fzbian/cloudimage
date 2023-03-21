@@ -16,7 +16,7 @@ func main() {
 
 	app := echo.New()
 
-	api := app.Group("/api/")
+	api := app.Group("/api")
 
 	app.Static("/i/", "images")
 	api.GET("/health", controllers.Health)
